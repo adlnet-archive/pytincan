@@ -13,28 +13,39 @@ class tincanStatement(object):
 
 	def submitStatement(self, jsonObject):	  
 		try:
-			print jsonObject
+			if(not self.validateVerb(jsonObject['verb'])):
+				raise ValueError(jsonObject['verb'])
 			resp = requests.post(self._endpoint,
 				            data=json.dumps(jsonObject),
 				            auth=HTTPBasicAuth(self._userName,self._secret),
 				            headers={"Content-Type":"application/json"})
+			print resp.json
 		except IOError as e:
 			if self.logger is not None:
 				self.logger.error(e)
-	
+		except ValueError as e:
+			if self.logger is not None:
+				self.logger.error("INVALID VERB: "+str(e)+" is not a valid verb.")
+			print "INVALID VERB: "+str(e)+" is not a valid verb."
+
+
 	def submitStatementList(self, jsonObjectList):
-		for statement in jsonObjectList:
-			
+		for statement in jsonObjectList:	
 			try:
+				if(not self.validateVerb(statement['verb'])):
+					raise ValueError(statement['verb'])
 				resp = requests.post(self._endpoint,
 				            data=json.dumps(statement),
 				            auth=HTTPBasicAuth(self._userName,self._secret),
 				            headers={"Content-Type":"application/json"})
-
 			except IOError as e:
 				if self.logger is not None:
 					self.logger.error(e)
-	
+			except ValueError as e:
+				if self.logger is not None:
+					self.logger.error("INVALID VERB: "+e+" is not a valid verb.")
+				print "INVALID VERB: "+str(e)+" is not a valid verb."
+		
 	def getStatementbyID(self, ID):
 		try:
 			url = self._endpoint+"?statementId="+ID
@@ -99,3 +110,20 @@ class tincanStatement(object):
 						    auth=HTTPBasicAuth(self._userName,self._secret))
 			return resp.json
 		
+	def validateVerb(self, verb):
+		if(verb == 'experienced' or verb == 'attended'):
+			return True
+		elif(verb == 'attempted'):
+			return True
+		elif(verb == 'completed' or verb == 'passed' or verb == 'failed'):
+			return True
+		elif(verb == 'answered'):
+			return True
+		elif(verb == 'interacted'):
+			return True
+		elif(verb == 'imported' or verb == 'created' or verb == 'shared'):
+			return True
+		elif(verb == "voided"):
+			return True
+		else:
+			return False
