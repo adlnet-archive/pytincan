@@ -1,6 +1,5 @@
 from tincan import tincanStatement
 import uuid
-from threading import Thread
 import time
 import datetime
 USER_NAME = "UU3N64YGT2"
@@ -9,11 +8,14 @@ ENDPOINT = 'https://cloud.scorm.com/ScormEngineInterface/TCAPI/UU3N64YGT2/statem
 objectID = None
 
 def test_submit_statement():
+	##Tests to see if a single statement can be inserted
+	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
 	statement_ID = str(uuid.uuid1())
 	whoDid = "I"
 	whoDidEmail = "testingSingle@tincan.test"
 	whoDidObject = 'you'
 	didWhat = 'created'
+	##Build the Tin Can statement
 	createdJsonObject ={
 					"id": statement_ID,
 					'actor':{'name':[whoDid],'mbox':['mailto:'+whoDidEmail]},
@@ -21,22 +23,27 @@ def test_submit_statement():
 					'object':{'id':str(uuid.uuid1()),'definition':{'name':{"en-US":whoDidObject},'description':{"en-US":'Testing single insertion of a statement.'}}}
 
 				}
-	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
 	tc.submitStatement(createdJsonObject)
+	##Sleeps to insure the statement is inserted
 	time.sleep(10)
+	##Gets the statement by the ID used when inserted
 	testStatement = tc.getStatementbyID(statement_ID)
+	##Ensures the ID when inserted and the ID on the retrieve are the same
 	assert (testStatement['id'] == statement_ID)
 		
 
 def test_insertList():
+	##Tests to see if multiple Statements can be inserted
+	tcList = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
 	statement1Id= str(uuid.uuid1())
 	statement2Id= str(uuid.uuid1())
 	email1 = 'mailto:testingLIst1@tincan.test'
 	email2 = 'mailto:testingList2@tincan.test'
 	x={'mbox':[email1]}
 	y={'mbox':[email2]}
+
 	now = datetime.datetime.now()
-	time.sleep(1)
+	##Builds statement list
 	statementList =	[{
 						"id": statement1Id,
 						'actor':{'name':['List Test1'],'mbox':[email1]},
@@ -49,24 +56,21 @@ def test_insertList():
 						'verb':'failed',
 						'object':{'id':str(uuid.uuid1()),'definition':{'name':{"en-US":'you'},'description':{"en-US":'Testing list insertions[1] of statements.'}}}
 					}]
-	tcList = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
 	tcList.submitStatementList(statementList)
 	time.sleep(10)
+	## Fetches previously entered statements
 	state1 = tcList.getStatementbyID(statement1Id)
-	state2 = tcList.getStatementbyID(statement2Id) 
-	# tcList.getFilteredStatements(_verb='passed',_since=str(now), _actor=x, _limit=1)
-	# state2 = 
-	# tcList.getFilteredStatements(_verb='failed',_since=str(now), _actor=y, _limit=1)
-	for email in state1['actor']['mbox']:
-		assert email == email1.lower()
-	for email in state2['actor']['mbox']:
-		assert email == email2.lower()
-
+	state2 = tcList.getStatementbyID(statement2Id)
+	##Checks to see if the IDs are the same from inserted and retrieved
+	assert state1['id'] == statement1Id
+	assert state2['id'] == statement2Id 
+	
 def test_filter_statements():
+	##Ensures a simple filter request returns the correct information
+	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
 	test_verb = 'created'
 	email = 'testing@tincan.test'
 	x={'mbox':['mailto:'+email]}
-	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
 	results = tc.getFilteredStatements(_actor=x,_limit=5, _sparse=True)
 	
 	for result in results['statements']:
@@ -75,6 +79,8 @@ def test_filter_statements():
 				assert True
 
 def testComplexFilter():
+	##Ensures a complex filter returns correct data
+	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
 	whoDid = "Complex Test"
 	statement_ID = str(uuid.uuid1())
 	whoDidEmail = "complex@filter.test"
@@ -82,25 +88,27 @@ def testComplexFilter():
 	didWhat = 'attempted'
 	now = datetime.datetime.now()
 	x={'mbox':['mailto:'+whoDidEmail]}
-	createdJsonObject = [{
+	##Inserts object to filter for
+	createdJsonObject = {
 					'id': statement_ID,
 					'actor':{'name':[whoDid],'mbox':['mailto:'+whoDidEmail]},
 					'verb':didWhat,
-					'object':{'id':str(uuid.uuid1()),'definition':{'name':{"en-US":'with '+whoDidObject},'description':{"en-US":whoDid+' gave a gold star to '+whoDidObject+'.'}}}
-					
-				}]
-	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
-	Thread(None,tc.submitStatement,None,(createdJsonObject)).start()
-	time.sleep(8)			
+					'object':{'id':str(uuid.uuid1()),'definition':{'name':{"en-US":'with '+whoDidObject},'description':{"en-US":'Inserting a description for a complex filter.'}}}	
+				}
+	##Inserts statement
+	tc.submitStatement(createdJsonObject)
+	time.sleep(8)
 	results = tc.getFilteredStatements(_verb=didWhat,_actor=x,_limit=1,_sparse=True,_since=str(now))
 	for result in results['statements']:
 		if result['verb']==didWhat:
 			for x in result['actor']['mbox']:
-				if (x == 'mailto:'+whoDidEmail.lower()):
-					assert True
+				assert (x == 'mailto:'+whoDidEmail.lower())
+					
 
 def test_GetAllStatements():
 	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
-	a = tc.getAllStatements()
-	if a != None:
-		assert True
+	statementlist = tc.getAllStatements()
+	print statementlist
+	for x in statementlist['statements']:
+
+		assert 'id' in x
