@@ -3,6 +3,7 @@ import requests
 import json
 import urllib
 import uuid
+import dataValidation
 class tincanStatement(object):
 	def __init__(self,userName,secret,endpoint,logger=None):
 		self._userName = userName
@@ -10,10 +11,9 @@ class tincanStatement(object):
 		self._endpoint = endpoint
 		self.logger = logger
 		
-
 	def submitStatement(self, jsonObject):	  
 		try:
-			if(not self.validateVerb(jsonObject['verb'])):
+			if(not dataValidation.validateVerb(jsonObject['verb'])):
 				raise ValueError(jsonObject['verb'])
 			resp = requests.post(self._endpoint,
 				            data=json.dumps(jsonObject),
@@ -32,7 +32,7 @@ class tincanStatement(object):
 	def submitStatementList(self, jsonObjectList):
 		for statement in jsonObjectList:	
 			try:
-				if(not self.validateVerb(statement['verb'])):
+				if(not dataValidation.validateVerb(statement['verb'])):
 					raise ValueError(statement['verb'])
 				resp = requests.post(self._endpoint,
 				            data=json.dumps(statement),
@@ -110,20 +110,4 @@ class tincanStatement(object):
 						    auth=HTTPBasicAuth(self._userName,self._secret))
 			return resp.json
 		
-	def validateVerb(self, verb):
-		if(verb == 'experienced' or verb == 'attended'):
-			return True
-		elif(verb == 'attempted'):
-			return True
-		elif(verb == 'completed' or verb == 'passed' or verb == 'failed'):
-			return True
-		elif(verb == 'answered'):
-			return True
-		elif(verb == 'interacted'):
-			return True
-		elif(verb == 'imported' or verb == 'created' or verb == 'shared'):
-			return True
-		elif(verb == "voided"):
-			return True
-		else:
-			return False
+
