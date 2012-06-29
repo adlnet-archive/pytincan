@@ -3,6 +3,7 @@ import requests
 import json
 import urllib
 import uuid
+import dataValidation
 class tincanStatement(object):
 	def __init__(self,userName,secret,endpoint,logger=None):
 		self._userName = userName
@@ -10,35 +11,47 @@ class tincanStatement(object):
 		self._endpoint = endpoint
 		self.logger = logger
 		
-
 	def submitStatement(self, jsonObject):	  
+		##Attempts to submit a single statement
 		try:
-			print jsonObject
+			##Validates that the verb is valid
+			if(not dataValidation.validateVerb(jsonObject['verb'])):
+				raise ValueError("INVALID VERB: "+jsonObject['verb'])
+
 			resp = requests.post(self._endpoint,
 				            data=json.dumps(jsonObject),
 				            auth=HTTPBasicAuth(self._userName,self._secret),
 				            headers={"Content-Type":"application/json"})
+			
 		except IOError as e:
 			if self.logger is not None:
 				self.logger.error(e)
-	
+
+
 	def submitStatementList(self, jsonObjectList):
-		for statement in jsonObjectList:
-			
+		##Submits a list of Statements
+		for statement in jsonObjectList:	
 			try:
+				##Validates that the verb is valid
+				if(not dataValidation.validateVerb(statement['verb'])):
+					raise ValueError("INVALID VERB: "+statement['verb'])
+
+
 				resp = requests.post(self._endpoint,
 				            data=json.dumps(statement),
 				            auth=HTTPBasicAuth(self._userName,self._secret),
 				            headers={"Content-Type":"application/json"})
-
 			except IOError as e:
 				if self.logger is not None:
 					self.logger.error(e)
-	
+				else:
+					print e
+
+		
 	def getStatementbyID(self, ID):
+		##Attempts to retrieve a statement by its ID
 		try:
 			url = self._endpoint+"?statementId="+ID
-
 			resp = requests.get(url,
 								auth=HTTPBasicAuth(self._userName,self._secret))
 			return resp.json
@@ -46,6 +59,7 @@ class tincanStatement(object):
 			if self.logger is not None:
 				self.logger.error(e)
 	def getAllStatements(self):
+		##Attempts to retrieve every TinCan Statement from the End point
 		try:
 			resp = requests.get(self._endpoint,
 							auth=HTTPBasicAuth(self._userName,self._secret),
@@ -55,43 +69,36 @@ class tincanStatement(object):
 			if self.logger is not None:
 				self.logger.error(e)
 	def getFilteredStatements(self,_verb=None,_object=None,_registration=None,_context=None,_actor=None,_since=None,_until=None,_limit=None,_authoritative=None,_sparse=None,_instructor=None):
-		statementJSON ={}
+		queryObject ={}
+		##Builds the statement query object
 		if(_verb != None):
-			statementJSON['verb'] = _verb
+			queryObject['verb'] = _verb
 		if(_object != None):
-			statementJSON['object'] = json.dumps(_object)
+			queryObject['object'] = json.dumps(_object)
 		if(_registration != None):
-			statementJSON['registration'] = _registration
+			queryObject['registration'] = _registration
 		if(_context != None):
-
-			statementJSON['context'] = _context
+			queryObject['context'] = _context
 		if(_actor != None):
-
-			statementJSON['actor'] = json.dumps(_actor)
-
+			queryObject['actor'] = json.dumps(_actor)
 		if(_since != None):
-
-			statementJSON['since'] = _since
+			queryObject['since'] = _since
 		if(_until != None):
-
-			statementJSON['until'] = _until
+			queryObject['until'] = _until
 		if(_limit != None):
-
-			statementJSON['limit'] = _limit
+			queryObject['limit'] = _limit
 		if(_authoritative != None):
-
-			statementJSON['authoritative'] = _authoritative
+			queryObject['authoritative'] = _authoritative
 		if(_sparse != None):
-
-			statementJSON['sparse'] = _sparse
+			queryObject['sparse'] = _sparse
 		if(_instructor != None):
-
-			statementJSON['instructor'] = json.dumps(_instructor)
-		
-		url = self._endpoint +"?"+ urllib.urlencode(statementJSON)
+			queryObject['instructor'] = json.dumps(_instructor)
+		##Encodes the query object into a query string
+		url = self._endpoint +"?"+ urllib.urlencode(queryObject)
+		##If the URL Length exceeds max URL length then query using post
 		if (len(url)> 2048):	
 			resp = requests.post(self._endpoint,
-							    data=statementJSON,
+							    data=queryObject,
 							    auth=HTTPBasicAuth(self._userName,self._secret))
 			return resp.json
 		else:
@@ -99,3 +106,4 @@ class tincanStatement(object):
 						    auth=HTTPBasicAuth(self._userName,self._secret))
 			return resp.json
 		
+
