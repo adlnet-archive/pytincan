@@ -3,7 +3,8 @@
 '''
 Created on June 29, 2012
 	Base model for TinCan Python Client Library validation
-@author: Stephen Trevorrow
+@Author: Stephen Trevorrow
+@Email:  strevorrow@problemsolutions.net
 '''
 
 import re

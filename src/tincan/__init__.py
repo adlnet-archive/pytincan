@@ -4,6 +4,7 @@
 Created on June 29, 2012
 	Base model for TinCan Python Client Library
 @author: Stephen Trevorrow
+@Email:  strevorrow@problemsolutions.net
 '''
 
 from requests.auth import HTTPBasicAuth
@@ -63,7 +64,7 @@ class TinCan(object):
 	def getStatementbyID(self, ID):
 		##Attempts to retrieve a statement by its ID
 		try:
-			
+
 			url = self._endpoint+"?statementId="+ID
 			resp = requests.get(url,
 								auth=HTTPBasicAuth(self._userName,self._secret))

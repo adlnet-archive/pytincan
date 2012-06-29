@@ -4,6 +4,7 @@
 Created on June 29, 2012
 	Basic test cases for Python TinCan
 @author: Stephen Trevorrow
+@Email:  strevorrow@problemsolutions.net
 '''
 from tincan import TinCan
 import uuid
