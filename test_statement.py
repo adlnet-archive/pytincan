@@ -1,5 +1,5 @@
 #    Copyright 2012 Problem Solutions LLC
-
+#	 http://problemsolutions.net/
 '''
 Created on June 29, 2012
 	Basic test cases for Python TinCan
@@ -117,6 +117,5 @@ def testComplexFilter():
 def test_GetAllStatements():
 	tc = TinCan(USER_NAME,PASSWORD,ENDPOINT)
 	statementlist = tc.getAllStatements()
-	print statementlist
 	for x in statementlist['statements']:
 		assert 'id' in x
