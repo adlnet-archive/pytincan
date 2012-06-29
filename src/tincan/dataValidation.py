@@ -1,3 +1,11 @@
+#    Copyright 2012 Problem Solutions LLC
+
+'''
+Created on June 29, 2012
+	Base model for TinCan Python Client Library validation
+@author: Stephen Trevorrow
+'''
+
 import re
 
 def validateVerb(verb):
@@ -8,6 +16,7 @@ def validateVerb(verb):
 
 def validateAgent(agent):
 	##Checks to see if the agent object contains the unique identifier email(mbox)
+	##Creates a simple regex to verify that the email is in valid form.
 	email_regex = re.compile(r"^mailto:[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 	if 'mbox' in agent:
 		for email in agent['mbox']:
