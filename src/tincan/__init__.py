@@ -17,9 +17,7 @@ class tincanStatement(object):
 			##Validates that the verb is valid
 			if(not dataValidation.validateVerb(jsonObject['verb'])):
 				raise ValueError("INVALID VERB: "+jsonObject['verb'])
-			##Validates the statement has a unique identifier
-			if(not dataValidation.validateAgent(jsonObject['actor'])):
-				raise ValueError("NO ACTOR EMAIL")
+
 			resp = requests.post(self._endpoint,
 				            data=json.dumps(jsonObject),
 				            auth=HTTPBasicAuth(self._userName,self._secret),
@@ -28,11 +26,6 @@ class tincanStatement(object):
 		except IOError as e:
 			if self.logger is not None:
 				self.logger.error(e)
-		except ValueError as e:
-			if self.logger is not None:
-				self.logger.error(e)
-			else:
-				print e
 
 
 	def submitStatementList(self, jsonObjectList):
@@ -42,9 +35,7 @@ class tincanStatement(object):
 				##Validates that the verb is valid
 				if(not dataValidation.validateVerb(statement['verb'])):
 					raise ValueError("INVALID VERB: "+statement['verb'])
-				##Validates the statement has a unique identifier
-				if(not dataValidation.validateAgent(statement['actor'])):
-					raise ValueError("NO ACTOR EMAIL")
+
 
 				resp = requests.post(self._endpoint,
 				            data=json.dumps(statement),
@@ -55,11 +46,7 @@ class tincanStatement(object):
 					self.logger.error(e)
 				else:
 					print e
-			except ValueError as e:
-				if self.logger is not None:
-					self.logger.error(e)
-				else:	
-					print e
+
 		
 	def getStatementbyID(self, ID):
 		##Attempts to retrieve a statement by its ID
