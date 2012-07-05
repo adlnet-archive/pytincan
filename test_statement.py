@@ -39,8 +39,9 @@ def test_insertList():
 	statement2Id= str(uuid.uuid1())
 	email1 = 'mailto:testingLIst1@tincan.test'
 	email2 = 'mailto:testingList2@tincan.test'
+	email3 = 'mailto:multipleEmail@tincan.test'
 	x={'mbox':[email1]}
-	y={'mbox':[email2]}
+	y={'mbox':[email2,email3]}
 
 	now = datetime.datetime.now()
 	##Builds statement list
@@ -52,7 +53,7 @@ def test_insertList():
 					},
 					{
 						"id": statement2Id,
-						'actor':{'name':['List Test2'],'mbox':[email2]},
+						'actor':{'name':['List Test2'],'mbox':[email2, email3]},
 						'verb':'failed',
 						'object':{'id':str(uuid.uuid1()),'definition':{'name':{"en-US":'you'},'description':{"en-US":'Testing list insertions[1] of statements.'}}}
 					}]
