@@ -1,7 +1,16 @@
-from tincan import tincanStatement
+#    Copyright 2012 Problem Solutions LLC
+#	 http://problemsolutions.net/
+'''
+Created on June 29, 2012
+	Basic test cases for Python TinCan
+@author: Stephen Trevorrow
+@Email:  strevorrow@problemsolutions.net
+'''
+from tincan import TinCan
 import uuid
 import time
 import datetime
+##Change to match test endpoint
 USER_NAME = "UU3N64YGT2"
 PASSWORD = "9VU0MxwcogqhZYKc9Vn734oohTSOFoZohFJBJf5m"
 ENDPOINT = 'https://cloud.scorm.com/ScormEngineInterface/TCAPI/UU3N64YGT2/statements/'
@@ -9,7 +18,7 @@ objectID = None
 
 def test_submit_statement():
 	##Tests to see if a single statement can be inserted
-	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
+	tc = TinCan(USER_NAME,PASSWORD,ENDPOINT)
 	statement_ID = str(uuid.uuid1())
 	whoDid = "I"
 	whoDidEmail = "testingSingle@tincan.test"
@@ -34,7 +43,7 @@ def test_submit_statement():
 
 def test_insertList():
 	##Tests to see if multiple Statements can be inserted
-	tcList = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
+	tc = TinCan(USER_NAME,PASSWORD,ENDPOINT)
 	statement1Id= str(uuid.uuid1())
 	statement2Id= str(uuid.uuid1())
 	email1 = 'mailto:testingLIst1@tincan.test'
@@ -57,18 +66,18 @@ def test_insertList():
 						'verb':'failed',
 						'object':{'id':str(uuid.uuid1()),'definition':{'name':{"en-US":'you'},'description':{"en-US":'Testing list insertions[1] of statements.'}}}
 					}]
-	tcList.submitStatementList(statementList)
+	tc.submitStatementList(statementList)
 	time.sleep(10)
 	## Fetches previously entered statements
-	state1 = tcList.getStatementbyID(statement1Id)
-	state2 = tcList.getStatementbyID(statement2Id)
+	state1 = tc.getStatementbyID(statement1Id)
+	state2 = tc.getStatementbyID(statement2Id)
 	##Checks to see if the IDs are the same from inserted and retrieved
 	assert state1['id'] == statement1Id
 	assert state2['id'] == statement2Id 
 	
 def test_filter_statements():
 	##Ensures a simple filter request returns the correct information
-	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
+	tc = TinCan(USER_NAME,PASSWORD,ENDPOINT)
 	test_verb = 'created'
 	email = 'testing@tincan.test'
 	x={'mbox':['mailto:'+email]}
@@ -81,7 +90,7 @@ def test_filter_statements():
 
 def testComplexFilter():
 	##Ensures a complex filter returns correct data
-	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
+	tc = TinCan(USER_NAME,PASSWORD,ENDPOINT)
 	whoDid = "Complex Test"
 	statement_ID = str(uuid.uuid1())
 	whoDidEmail = "complex@filter.test"
@@ -107,9 +116,7 @@ def testComplexFilter():
 					
 
 def test_GetAllStatements():
-	tc = tincanStatement(USER_NAME,PASSWORD,ENDPOINT)
+	tc = TinCan(USER_NAME,PASSWORD,ENDPOINT)
 	statementlist = tc.getAllStatements()
-	print statementlist
 	for x in statementlist['statements']:
-
 		assert 'id' in x

@@ -1,10 +1,19 @@
+#    Copyright 2012 Problem Solutions LLC
+#	 http://problemsolutions.net/
+'''
+Created on June 29, 2012
+	Base model for TinCan Python Client Library
+@author: Stephen Trevorrow
+@Email:  strevorrow@problemsolutions.net
+'''
+
 from requests.auth import HTTPBasicAuth
 import requests
 import json
 import urllib
 import uuid
 import dataValidation
-class tincanStatement(object):
+class TinCan(object):
 	def __init__(self,userName,secret,endpoint,logger=None):
 		self._userName = userName
 		self._secret = secret
@@ -51,6 +60,7 @@ class tincanStatement(object):
 	def getStatementbyID(self, ID):
 		##Attempts to retrieve a statement by its ID
 		try:
+
 			url = self._endpoint+"?statementId="+ID
 			resp = requests.get(url,
 								auth=HTTPBasicAuth(self._userName,self._secret))
